@@ -142,6 +142,26 @@ export const BITMAPS = Object.fromEntries(
   Object.entries(RAW).map(([name, rows]) => [name, toBits(rows, name)]),
 );
 
+// 絵の外側に接している空きマス。ここを黒く抜くと、ディザの背景から絵が浮く
+function outlineOf(bits) {
+  return bits.map((row, y) => row.map((on, x) => {
+    if (on) return 0;
+    for (let dy = -1; dy <= 1; dy++) {
+      for (let dx = -1; dx <= 1; dx++) {
+        const ny = y + dy;
+        const nx = x + dx;
+        if (ny < 0 || nx < 0 || ny > 15 || nx > 15) continue;
+        if (bits[ny][nx]) return 1;
+      }
+    }
+    return 0;
+  }));
+}
+
+export const OUTLINES = Object.fromEntries(
+  Object.entries(BITMAPS).map(([name, bits]) => [name, outlineOf(bits)]),
+);
+
 // 武器。画面の下中央に置く。16x8
 export const WEAPON = [
   '......######....',

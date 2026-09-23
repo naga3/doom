@@ -7,7 +7,7 @@
 
 import { BAYER, MAX_DIST, colDist } from './scene.js';
 import { COVERAGE_STEPS } from './display.js';
-import { BITMAPS, WEAPON } from './bitmaps.js';
+import { BITMAPS, OUTLINES, WEAPON } from './bitmaps.js';
 
 export const BASE_FONT = 64; // 絵文字の素の字面。これを固定して scale で伸縮させる
 
@@ -75,7 +75,9 @@ export function drawDots(grid, projected, mode) {
   const halftone = mode === 'C';
 
   for (const s of projected) {
-    const bitmap = BITMAPS[s.entity.bitmap] || BITMAPS.imp;
+    const name = BITMAPS[s.entity.bitmap] ? s.entity.bitmap : 'imp';
+    const bitmap = BITMAPS[name];
+    const outline = OUTLINES[name];
     const span = visibleSpan(s, w);
     if (!span) continue;
     // 撃たれた直後は白く光らせる
@@ -90,8 +92,12 @@ export function drawDots(grid, projected, mode) {
       if (tx < 0 || tx > 15) continue;
       for (let y = yStart; y <= yEnd; y++) {
         const ty = Math.floor((y + 0.5 - s.top) / s.size * 16);
-        if (ty < 0 || ty > 15 || !bitmap[ty][tx]) continue;
+        if (ty < 0 || ty > 15) continue;
         const i = y * w + x;
+        if (!bitmap[ty][tx]) {
+          if (outline[ty][tx]) ink[i] = 0; // 輪郭の外側を抜いて背景から切り離す
+          continue;
+        }
         if (halftone) {
           ink[i] = 1;
           cov[i] = Math.max(1, Math.round(shade * COVERAGE_STEPS));
