@@ -177,6 +177,44 @@ export class EmojiLayer {
     this.root.className = 'spritelayer';
     this.root.setAttribute('aria-hidden', 'true');
     this.pool = [];
+
+    // 武器と銃口の閃光。数が固定なので使い回す
+    this.weapon = document.createElement('span');
+    this.weapon.className = 'weapon';
+    this.weapon.textContent = '🔫';
+    this.muzzle = document.createElement('span');
+    this.muzzle.className = 'muzzle';
+    this.muzzle.textContent = '💥';
+    this.root.append(this.weapon, this.muzzle);
+  }
+
+  // 銃は画面の下中央。絵文字の銃口は左を向いているので回して上に向ける
+  syncWeapon(cellPx, gridWidth, gridHeight, flash) {
+    const gunPx = gridHeight * cellPx * 0.42;
+    const scale = gunPx / BASE_FONT;
+    // 中心を基準に拡大するので、そのままだと半分が画面の下へ落ちる。
+    // 伸びたぶんを引き戻したうえで、少しだけ画面外へはみ出させる
+    const lift = -(BASE_FONT / 2) * (scale - 1) + gunPx * 0.16;
+
+    this.weapon.style.display = '';
+    this.weapon.style.transform =
+      `translate(-50%, ${lift.toFixed(1)}px) rotate(90deg) scale(${scale.toFixed(3)})`;
+
+    if (flash > 0) {
+      const burst = (0.35 + flash / 14) * scale;
+      // 銃身の先端より上に出す。銃と重ねると絵が潰れて何が起きたか分からない
+      const burstLift = lift - gunPx * 0.98 - (BASE_FONT / 2) * (burst - scale);
+      this.muzzle.style.display = '';
+      this.muzzle.style.transform =
+        `translate(-50%, ${burstLift.toFixed(1)}px) scale(${burst.toFixed(3)})`;
+    } else {
+      this.muzzle.style.display = 'none';
+    }
+  }
+
+  hideWeapon() {
+    this.weapon.style.display = 'none';
+    this.muzzle.style.display = 'none';
   }
 
   attach(host) {
@@ -219,5 +257,6 @@ export class EmojiLayer {
 
   clear() {
     for (const el of this.pool) el.style.display = 'none';
+    this.hideWeapon();
   }
 }

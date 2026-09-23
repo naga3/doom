@@ -61,6 +61,7 @@ export class Engine {
     if (style !== 'emoji') this.emojiLayer.clear();
   }
 
+
   reset() {
     this.game.restart();
     this.frame = 0;
@@ -88,14 +89,20 @@ export class Engine {
     if (this.sprites) {
       this.projected = project(this.game.entities(), this.cam, this.grid.width, this.grid.height);
       // ドット版は格子に焼くので flush より前。絵文字版は重ねるだけなので後でよい
-      if (this.spriteStyle === 'dot') drawDots(this.grid, this.projected, this.mode);
-      drawWeapon(this.grid, this.mode, this.game.muzzleFlash);
+      // 武器は敵と同じ流儀で描く。絵文字なら重ねた要素、ドットなら格子に焼く
+      if (this.spriteStyle === 'dot') {
+        drawDots(this.grid, this.projected, this.mode);
+        drawWeapon(this.grid, this.mode, this.game.muzzleFlash);
+      }
     }
 
     const t1 = performance.now();
     const writes = this.grid.flush(this.mode !== 'A');
     if (this.sprites && this.spriteStyle === 'emoji') {
       this.emojiLayer.sync(this.projected, this.grid.cellPx, this.grid.width);
+      this.emojiLayer.syncWeapon(
+        this.grid.cellPx, this.grid.width, this.grid.height, this.game.muzzleFlash,
+      );
     } else if (!this.sprites) {
       this.emojiLayer.clear();
     }
