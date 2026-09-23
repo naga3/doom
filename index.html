@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>DOOM クローン — チェックボックス描画</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<h1>チェックボックスで描く 1bit の迷宮</h1>
+
+<div class="controls">
+  <label>表示方式
+    <select id="backend">
+      <option value="checkbox" selected>チェックボックス</option>
+      <option value="table">table の td</option>
+    </select>
+  </label>
+  <label>解像度
+    <select id="size"></select>
+  </label>
+  <label>モード
+    <select id="mode">
+      <option value="A">A: checked のみ</option>
+      <option value="B" selected>B: 輪郭だけ大きさで補間</option>
+      <option value="C">C: 全セルの大きさで明暗（網点）</option>
+    </select>
+  </label>
+  <label><input type="checkbox" id="auto"> 自動歩行</label>
+</div>
+
+<div id="screen" class="screen" tabindex="0"></div>
+<p id="hud"></p>
+<p class="note">
+  画面をクリックするとマウスで旋回できます（Esc で解除）。WASD で移動、左右キーでも旋回。
+  1ドットが1個のチェックボックス、あるいは table の1マスです。
+</p>
+
+<script type="module" src="src/main.js"></script>
+</body>
+</html>

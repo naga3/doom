@@ -1,0 +1,1 @@
+{"name":"doom-clone","version":"0.0.1","private":true,"description":"ブラウザで動くDOOMクローン（素のJS）","scripts":{"start":"node server.cjs"},"type":"module","devDependencies":{"playwright":"^1.63.0"}}

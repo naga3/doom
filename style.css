@@ -1,0 +1,93 @@
+:root { color-scheme: dark; }
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  background: #0b0b0b;
+  color: #c9c9c9;
+  font: 14px/1.6 system-ui, sans-serif;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  padding: 16px;
+}
+
+h1 { margin: 0; font-size: 16px; font-weight: 600; }
+
+/* チェックボックスの格子を置く枠。格子は transform で縮むので溢れを切る */
+.screen {
+  overflow: hidden;
+  background: #000;
+  outline: 1px solid #262626;
+  cursor: crosshair;
+}
+
+.dotgrid {
+  display: grid;
+  gap: 0;
+  transform-origin: top left;
+  line-height: 0;
+}
+
+/* 1ドット。margin を消して格子に隙間を作らない */
+.dotgrid input[type="checkbox"] {
+  margin: 0;
+  padding: 0;
+}
+
+/* 消えているドットは枠線も見せない。ここが黒の深さを決める */
+.dotgrid input[type="checkbox"]:not(:checked) {
+  visibility: hidden;
+}
+
+.controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px 16px;
+  align-items: center;
+  justify-content: center;
+}
+
+.controls label { display: flex; gap: 6px; align-items: center; }
+
+#hud {
+  font-variant-numeric: tabular-nums;
+  opacity: .8;
+  min-height: 1.6em;
+}
+
+#readout {
+  font: 12px/1.5 ui-monospace, monospace;
+  background: #151515;
+  padding: 10px 12px;
+  max-width: 96vw;
+  overflow: auto;
+}
+
+.note { max-width: 60ch; opacity: .65; margin: 0; }
+
+/* --- table 版の表示面 --- */
+.dottable {
+  border-collapse: collapse;
+  table-layout: fixed;
+  transform-origin: top left;
+}
+
+.dottable td {
+  width: 14px;
+  height: 14px;
+  padding: 0;
+  border: 0;
+}
+
+/* 1ドット。td ではなくこの <i> を点滅させる（テーブルのレイアウトを触らない） */
+.dottable i {
+  display: block;
+  width: 13px;
+  height: 13px;
+  background: #8ab4f8;
+  visibility: hidden;
+}
+
+.dottable i.on { visibility: visible; }
