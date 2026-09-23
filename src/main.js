@@ -24,6 +24,10 @@ const ammoEl = document.getElementById('ammo');
 const leftEl = document.getElementById('left');
 const levelEl = document.getElementById('level');
 const hud = document.getElementById('hud');
+const note = document.getElementById('note');
+const stage = document.getElementById('stage');
+// window.status という既存のグローバル（文字列）があるので、名前をずらして取る
+const statusBar = document.getElementById('status');
 
 const engine = new Engine(host);
 
@@ -35,10 +39,26 @@ for (const [i, size] of SIZES.entries()) {
 }
 sizeSelect.value = '1'; // 96x60 から始める
 
+const MAX_SCREEN_WIDTH = 1000;
+
+// ステータスバーと説明文のぶんを残して、画面がちょうど収まる大きさにする。
+// 余白の見積もりは当てにならないので、一度置いてみてから溢れたぶんだけ縮め直す
+function fitScreen() {
+  const width = Math.min(window.innerWidth - 40, MAX_SCREEN_WIDTH);
+  const top = stage.getBoundingClientRect().top + window.scrollY;
+  const footer = statusBar.offsetHeight + hud.offsetHeight + note.offsetHeight + 56;
+  let maxHeight = Math.max(240, window.innerHeight - top - footer);
+
+  engine.grid.fit(width, maxHeight);
+  const overflow = document.documentElement.scrollHeight - window.innerHeight;
+  if (overflow > 1) engine.grid.fit(width, Math.max(240, maxHeight - overflow));
+}
+
 function applySize() {
   const size = SIZES[Number(sizeSelect.value)];
   engine.setSize(size.w, size.h);
   engine.setMode(engine.mode);
+  fitScreen();
 }
 
 sizeSelect.addEventListener('change', applySize);
@@ -47,9 +67,10 @@ spriteSelect.addEventListener('change', () => engine.setSpriteStyle(spriteSelect
 backendSelect.addEventListener('change', () => {
   engine.setBackend(backendSelect.value);
   engine.setMode(engine.mode);
+  fitScreen();
 });
 soundToggle.addEventListener('change', () => sound.setEnabled(soundToggle.checked));
-window.addEventListener('resize', () => engine.grid.fit());
+window.addEventListener('resize', fitScreen);
 
 // --- 入力 ---
 const held = new Set();
@@ -158,6 +179,8 @@ requestAnimationFrame(loop);
 
 // 体力が満タンでないと回復を拾わない仕様なので、初期値を見せておく
 hpEl.textContent = String(MAX_HEALTH);
+
+fitScreen();
 
 // 自動プレイテストから触るための口
 window.__engine = engine;
