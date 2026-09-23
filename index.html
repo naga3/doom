@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>DOOM クローン — チェックボックス描画</title>
+<title>DOOM クローン — チェックボックスで描く 1bit の迷宮</title>
 <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -32,15 +32,31 @@
       <option value="dot">ドット</option>
     </select>
   </label>
+  <label><input type="checkbox" id="sound" checked> 音</label>
   <label><input type="checkbox" id="auto"> 自動歩行</label>
 </div>
 
-<div id="screen" class="screen" tabindex="0"></div>
-<div id="status"><span id="face">😀</span><span id="hp"></span></div>
+<div id="stage">
+  <div id="screen" class="screen" tabindex="0"></div>
+  <div id="overlay" class="overlay" hidden>
+    <p id="overlay-title"></p>
+    <p id="overlay-body"></p>
+    <p class="overlay-hint">R キーで最初からやり直す</p>
+  </div>
+</div>
+
+<div id="status">
+  <span id="face">😀</span>
+  <span class="gauge">体力 <b id="hp">100</b></span>
+  <span class="gauge">弾 <b id="ammo">30</b></span>
+  <span class="gauge">残り <b id="left">0</b></span>
+  <span class="gauge" id="level"></span>
+</div>
+
 <p id="hud"></p>
 <p class="note">
-  画面をクリックするとマウスで旋回できます（Esc で解除）。WASD で移動、左右キーでも旋回。
-  1ドットが1個のチェックボックス、あるいは table の1マスです。
+  画面をクリックするとマウスで照準・旋回できます（Esc で解除）。WASD で移動、左右キーでも旋回。
+  クリックかスペースで発砲。敵を全滅させると出口が開きます。
 </p>
 
 <script type="module" src="src/main.js"></script>

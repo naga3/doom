@@ -1,10 +1,11 @@
-// グリッド・カメラ・シーンをまとめた最小の実行系。デモと計測で共有する。
+// 表示面・シーン・ゲーム状態をまとめた実行系。デモと計測で共有する。
 
 import { CheckboxGrid } from './grid.js';
 import { TableGrid } from './table-grid.js';
 import { renderScene } from './scene.js';
-import { makeCamera, autoStep } from './camera.js';
-import { makeEnemies, updateEnemies, project, drawDots, EmojiLayer } from './sprites.js';
+import { autoStep } from './camera.js';
+import { project, drawDots, drawWeapon, pickTarget, EmojiLayer } from './sprites.js';
+import { Game } from './game.js';
 
 export const SIZES = [
   { label: '64 x 40', w: 64, h: 40 },
@@ -27,11 +28,14 @@ export class Engine {
     this.sprites = true;        // 計測では切って、壁だけのコストを見る
     this.frame = 0;
     this.grid = null;
-    this.cam = makeCamera();
-    this.enemies = makeEnemies();
-    this.health = 100;
+    this.projected = [];
+    this.game = new Game();
     this.emojiLayer = new EmojiLayer();
     this.setSize(96, 60);
+  }
+
+  get cam() {
+    return this.game.cam;
   }
 
   setSize(w, h) {
@@ -39,11 +43,6 @@ export class Engine {
     // 表示面を作り直すと host の中身が消えるので、絵文字の層は毎回付け直す
     this.grid = new Ctor(this.host, w, h);
     this.emojiLayer.attach(this.host);
-  }
-
-  setSpriteStyle(style) {
-    this.spriteStyle = style;
-    if (style !== 'emoji') this.emojiLayer.clear();
   }
 
   setBackend(name) {
@@ -57,20 +56,24 @@ export class Engine {
     this.grid.invalidate();
   }
 
+  setSpriteStyle(style) {
+    this.spriteStyle = style;
+    if (style !== 'emoji') this.emojiLayer.clear();
+  }
+
   reset() {
-    this.cam = makeCamera();
-    this.enemies = makeEnemies();
-    this.health = 100;
+    this.game.restart();
     this.frame = 0;
   }
 
-  // 一番近い敵に触られていると体力が減る。顔の表情はこれで決まる
-  updateHealth() {
-    let nearest = Infinity;
-    for (const e of this.enemies) {
-      nearest = Math.min(nearest, Math.hypot(e.x - this.cam.x, e.y - this.cam.y));
-    }
-    if (nearest < 0.8) this.health = Math.max(0, this.health - 0.4);
+  // いま画面中央に捉えている敵。狙えていなければ null
+  aim() {
+    return pickTarget(this.projected, this.grid.width);
+  }
+
+  // 画面中央に重なっている敵を撃つ
+  fire() {
+    return this.game.fire(this.aim());
   }
 
   // 1フレーム描いて内訳を返す
@@ -79,21 +82,22 @@ export class Engine {
     this.frame++;
 
     const t0 = performance.now();
+    if (this.sprites) this.game.update();
     renderScene(this.grid, this.cam, this.mode);
 
-    let projected = null;
     if (this.sprites) {
-      updateEnemies(this.enemies, this.cam);
-      this.updateHealth();
-      projected = project(this.enemies, this.cam, this.grid.width, this.grid.height);
+      this.projected = project(this.game.entities(), this.cam, this.grid.width, this.grid.height);
       // ドット版は格子に焼くので flush より前。絵文字版は重ねるだけなので後でよい
-      if (this.spriteStyle === 'dot') drawDots(this.grid, projected, this.mode);
+      if (this.spriteStyle === 'dot') drawDots(this.grid, this.projected, this.mode);
+      drawWeapon(this.grid, this.mode, this.game.muzzleFlash);
     }
 
     const t1 = performance.now();
     const writes = this.grid.flush(this.mode !== 'A');
-    if (projected && this.spriteStyle === 'emoji') {
-      this.emojiLayer.sync(projected, this.grid.cellPx, this.grid.width);
+    if (this.sprites && this.spriteStyle === 'emoji') {
+      this.emojiLayer.sync(this.projected, this.grid.cellPx, this.grid.width);
+    } else if (!this.sprites) {
+      this.emojiLayer.clear();
     }
     const t2 = performance.now();
 

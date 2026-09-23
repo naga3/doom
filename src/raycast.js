@@ -1,31 +1,21 @@
 // グリッドマップに対する DDA レイキャスト。Wolf3D 方式。
 // 1カラムにつき「垂直な壁の帯1本」を返すので、差分更新と相性がよい。
 
-export const MAP = [
-  '1111111111111111111111',
-  '1000000000000000000001',
-  '1022000011110000033001',
-  '1022000010010000033001',
-  '1000000010010000000001',
-  '1000000011110000000001',
-  '1000000000000000000001',
-  '1000444400000022220001',
-  '1000400400000020020001',
-  '1000400000000020020001',
-  '1000444400000022220001',
-  '1000000000000000000001',
-  '1000000033330000000001',
-  '1000000030030000000001',
-  '1000000033330000000001',
-  '1111111111111111111111',
-].map((row) => row.split('').map(Number));
+import { LEVELS } from './levels.js';
 
-export const MAP_H = MAP.length;
-export const MAP_W = MAP[0].length;
+let map = LEVELS[0].grid;
+export let MAP_H = map.length;
+export let MAP_W = map[0].length;
+
+export function setLevel(index) {
+  map = LEVELS[index].grid;
+  MAP_H = map.length;
+  MAP_W = map[0].length;
+}
 
 export function tileAt(x, y) {
   if (x < 0 || y < 0 || x >= MAP_W || y >= MAP_H) return 1;
-  return MAP[y | 0][x | 0];
+  return map[y | 0][x | 0];
 }
 
 // 1本のレイを飛ばして、壁までの垂直距離・当たった面・面上の位置を返す
