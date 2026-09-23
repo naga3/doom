@@ -8,6 +8,9 @@ const sizeSelect = document.getElementById('size');
 const modeSelect = document.getElementById('mode');
 const autoToggle = document.getElementById('auto');
 const backendSelect = document.getElementById('backend');
+const spriteSelect = document.getElementById('sprite');
+const faceEl = document.getElementById('face');
+const hpEl = document.getElementById('hp');
 const hud = document.getElementById('hud');
 
 const engine = new Engine(host);
@@ -32,6 +35,7 @@ backendSelect.addEventListener('change', () => {
   engine.setMode(engine.mode);
 });
 modeSelect.addEventListener('change', () => engine.setMode(modeSelect.value));
+spriteSelect.addEventListener('change', () => engine.setSpriteStyle(spriteSelect.value));
 window.addEventListener('resize', () => engine.grid.fit());
 
 // --- 入力 ---
@@ -67,6 +71,14 @@ function readInput() {
   if (forward || strafe) move(engine.cam, forward, strafe);
 }
 
+// 体力で表情が変わる。DOOM のステータスバーの顔のつもり
+const FACES = [[80, '😀'], [60, '🙂'], [40, '😐'], [20, '😠'], [1, '🤕'], [0, '💀']];
+
+function faceFor(health) {
+  for (const [threshold, emoji] of FACES) if (health >= threshold) return emoji;
+  return '💀';
+}
+
 // --- ループ ---
 let last = performance.now();
 let fps = 0;
@@ -85,6 +97,8 @@ function loop(now) {
   sinceUpdate += dt;
   if (sinceUpdate > 250) {
     sinceUpdate = 0;
+    faceEl.textContent = faceFor(engine.health);
+    hpEl.textContent = `体力 ${Math.round(engine.health)}`;
     hud.textContent =
       `${fps.toFixed(0)} fps / 描画 ${cost.toFixed(1)} ms / 書き込み ${stat.writes} セル / `
       + `${engine.grid.size} ドット / ${BACKENDS[engine.backend].label}`;

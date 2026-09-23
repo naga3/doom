@@ -26,7 +26,7 @@ export function turn(cam, radians) {
 }
 
 // 壁に半径ぶん食い込まないように軸ごとに判定する
-function blocked(x, y) {
+export function blocked(x, y) {
   return tileAt(x - RADIUS, y) !== 0 || tileAt(x + RADIUS, y) !== 0
       || tileAt(x, y - RADIUS) !== 0 || tileAt(x, y + RADIUS) !== 0;
 }

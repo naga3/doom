@@ -9,16 +9,19 @@ import { castRay } from './raycast.js';
 import { COVERAGE_STEPS } from './display.js';
 
 // 4x4 の順序ディザ。閾値はセル中央の値にずらしてある
-const BAYER = new Float32Array(
+export const BAYER = new Float32Array(
   [0, 8, 2, 10, 12, 4, 14, 6, 3, 11, 1, 9, 15, 7, 13, 5].map((v) => (v + 0.5) / 16),
 );
 
-const MAX_DIST = 22; // 壁がこれより遠いと真っ暗
+export const MAX_DIST = 22; // 壁がこれより遠いと真っ暗
 const FLOOR_DIST = 9; // 床はもっと手前で暗く落とす。明るいままだと壁と混ざって形が読めない
 const SIDE_SHADE = 0.62; // 横向きの面を暗くして角を立たせる
 
 let colTop = null;
 let colBottom = null;
+
+// カラムごとの壁までの距離。スプライトの遮蔽判定に使う（Z バッファ）
+export let colDist = null;
 
 function wallAlbedo(tile, u, v) {
   const tx = (u * 16) | 0;
@@ -50,6 +53,7 @@ export function renderScene(grid, cam, mode) {
   if (!colTop || colTop.length !== w) {
     colTop = new Float32Array(w);
     colBottom = new Float32Array(w);
+    colDist = new Float32Array(w);
   }
 
   ink.fill(0);
@@ -68,6 +72,7 @@ export function renderScene(grid, cam, mode) {
     const bottom = halfH + lineH / 2;
     colTop[x] = top;
     colBottom[x] = bottom;
+    colDist[x] = hit.dist;
 
     const shade = Math.max(0, 1 - hit.dist / MAX_DIST) * (hit.side === 1 ? SIDE_SHADE : 1);
     if (shade <= 0) continue;

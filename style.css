@@ -17,6 +17,7 @@ h1 { margin: 0; font-size: 16px; font-weight: 600; }
 
 /* チェックボックスの格子を置く枠。格子は transform で縮むので溢れを切る */
 .screen {
+  position: relative; /* 絵文字の層をこの中に絶対配置する */
   overflow: hidden;
   background: #000;
   outline: 1px solid #262626;
@@ -91,3 +92,32 @@ h1 { margin: 0; font-size: 16px; font-weight: 600; }
 }
 
 .dottable i.on { visibility: visible; }
+
+/* --- 絵文字のスプライト --- */
+.spritelayer {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+/* font-size は固定。距離による伸縮は transform: scale() が受け持つ */
+.sprite {
+  position: absolute;
+  left: 0;
+  top: 0;
+  font-size: 64px;
+  line-height: 1;
+  transform-origin: top left;
+  will-change: transform;
+}
+
+/* --- ステータスバーの顔 --- */
+#status {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+#face { font-size: 34px; line-height: 1; }
+
+#hp { font-variant-numeric: tabular-nums; opacity: .8; }

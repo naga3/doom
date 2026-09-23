@@ -20,6 +20,7 @@ function median(values) {
 
 async function run({ w, h, mode, frames = 180, steps = 16, backend = 'checkbox' }) {
   setCoverageSteps(steps);
+  engine.sprites = false; // 壁と床だけのコストを測る
   engine.backend = backend;
   engine.setSize(w, h);
   engine.setMode(mode);

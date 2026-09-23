@@ -33,6 +33,7 @@ export class DotDisplay {
   // 装置全体を1枚の transform で縮める。セルごとに width を変えると格子が崩れる
   fit(maxWidth = Math.min(window.innerWidth - 40, 1280)) {
     const scale = Math.min(1, maxWidth / (this.width * CELL));
+    this.cellPx = CELL * scale;
     this.root.style.transform = `scale(${scale})`;
     this.host.style.width = `${this.width * CELL * scale}px`;
     this.host.style.height = `${this.height * CELL * scale}px`;

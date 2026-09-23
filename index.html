@@ -26,10 +26,17 @@
       <option value="C">C: 全セルの大きさで明暗（網点）</option>
     </select>
   </label>
+  <label>敵の描き方
+    <select id="sprite">
+      <option value="emoji" selected>絵文字</option>
+      <option value="dot">ドット</option>
+    </select>
+  </label>
   <label><input type="checkbox" id="auto"> 自動歩行</label>
 </div>
 
 <div id="screen" class="screen" tabindex="0"></div>
+<div id="status"><span id="face">😀</span><span id="hp"></span></div>
 <p id="hud"></p>
 <p class="note">
   画面をクリックするとマウスで旋回できます（Esc で解除）。WASD で移動、左右キーでも旋回。
